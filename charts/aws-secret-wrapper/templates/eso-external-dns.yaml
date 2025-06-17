@@ -15,8 +15,6 @@ spec:
     template:
       engineVersion: v2
       type: Opaque
-      metadata:
-        namespace: external-dns  # Namespace where the secret will be created
       data:
         my_credentials: |
           [default]

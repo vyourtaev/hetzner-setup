@@ -1,6 +1,6 @@
 # modules/iam_user/main.tf
 locals {
-  secret_path = "${var.env}/${var.system}/${var.user_name}"
+  secret_path = "${var.env}/${var.system}/${var.user_name}/*"
 }
 
 
@@ -14,13 +14,16 @@ resource "aws_iam_user_policy" "this" {
 
   policy = jsonencode({
     Version = "2012-10-17",
-    Statement = [
+    Statement =  concat(
+    [
       {
         Effect   = "Allow"
         Action   = ["secretsmanager:GetSecretValue"]
         Resource = "arn:aws:secretsmanager:*:*:secret:${local.secret_path}"
       }
-    ]
+    ],
+    var.ext_policy 
+    )
   })
 }
 

@@ -21,4 +21,5 @@ module "iam_users" {
   user_name     = each.value.name
   env           = each.value.env
   system        = each.value.system
+  ext_policy    = each.value.ext_policy
 }

@@ -45,27 +45,54 @@ releases:
     set:
     - name: controller.progressDeadlineSeconds
       value: 600
-# 
-#   - name: cert-manager
-#     namespace: cert-manager
-#     createNamespace: true
-#     chart: jetstack/cert-manager
-#     version: "v1.17"  
-#     labels:
-#       phase: cmo
-#     set:
-#     - name: crds.enabled
-#       value: "true"
-# 
-#   - name: external-dns
-#     namespace: external-dns
-#     createNamespace: true
-#     chart: external-dns/external-dns
-#     version: 1.16.1
-#     labels:
-#       phase: edo
-#     values:
-#     - ../helm-charts-stable/external-dns/values.yaml
+
+  - name: cert-manager
+    namespace: cert-manager
+    createNamespace: true
+    chart: jetstack/cert-manager
+    version: "v1.17"  
+    labels:
+      phase: cmo
+      crd: true
+    set:
+    - name: crds.enabled
+      value: "true"
+
+  - name: external-dns
+    namespace: external-dns
+    createNamespace: true
+    chart: external-dns/external-dns
+    version: 1.16.1
+    labels:
+      phase: edo
+      crd: true
+    set:
+    - name: provider.name
+      value: aws
+
+    - name: env[0].name
+      value: AWS_SHARED_CREDENTIALS_FILE
+    - name: env[0].value
+      value: /etc/aws/credentials/my_credentials
+
+    - name: extraVolumes[0].name
+      value: external-dns-aws-key # Name of the secret created by External Secrets Operator
+    - name: extraVolumes[0].secret.secretName
+      value: external-dns-aws-key # Name of the secret created by External Secrets Operator
+
+    - name: extraVolumeMounts[0].name
+      value: external-dns-aws-key # Name of the secret created by External Secrets Operator
+    - name: extraVolumeMounts[0].mountPath
+      value: /etc/aws/credentials # Name of the secret created by External Secrets Operator
+    - name: extraVolumeMounts[0].readOnly
+      value: "true" 
+
+    - name: policy
+      value: sync
+    - name: logLevel
+      value: info
+    - name: txtOwnerId
+      value: default
 
   - name: aws-secrets-wrapper
     namespace: external-secrets
