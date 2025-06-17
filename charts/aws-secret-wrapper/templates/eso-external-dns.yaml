@@ -1,0 +1,32 @@
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: external-dns-aws-key
+  namespace: external-dns  # Ensure this namespace exists or change it to your desired namespace
+
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore  # Use 'SecretStore' if it's namespace-scoped
+    name: aws-cluster-parameter-store
+  target:
+    name: external-dns-aws-key # Name of the Kubernetes Secret to be created
+    creationPolicy: Owner
+    template:
+      engineVersion: v2
+      type: Opaque
+      metadata:
+        namespace: external-dns  # Namespace where the secret will be created
+      data:
+        my_credentials: |
+          [default]
+          aws_access_key_id     = "{{ `{{ .aws_access_key_id }}` }}"
+          aws_secret_access_key = "{{ `{{ .aws_secret_access_key }}` }}"
+          region                = us-east-1
+  data:
+    - secretKey: aws_access_key_id  # Key in the Kubernetes Secret
+      remoteRef:
+        key: /hetzner/k8s/external-dns-user/access_key  # Path in AWS Parameter Store
+    - secretKey: aws_secret_access_key  # Key in the Kubernetes Secret
+      remoteRef:
+        key: /hetzner/k8s/external-dns-user/secret_key  # Path in AWS Parameter Store

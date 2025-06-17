@@ -1,0 +1,22 @@
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: cert-manager-aws-key
+  namespace:  cert-manager  
+
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore  # Use 'SecretStore' if it's namespace-scoped
+    name: aws-cluster-parameter-store
+  target:
+    name: cert-manager-aws-key # Name of the Kubernetes Secret to be created
+    creationPolicy: Owner
+  data:
+    - secretKey: access-key-id  # Key in the Kubernetes Secret
+      remoteRef:
+        key: /hetzner/k8s/cert-manager-user/access_key  # Path in AWS Parameter Store
+    - secretKey: secret-access-key  # Key in the Kubernetes Secret
+      remoteRef:
+        key: /hetzner/k8s/cert-manager-user/secret_key  # Path in AWS Parameter Store
+
